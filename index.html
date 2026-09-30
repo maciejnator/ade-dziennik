@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mój Dziennik</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; background: #f4f4f9; }
+        textarea { width: 100%; height: 150px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #28a745; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #218838; }
+        #status { margin-top: 10px; color: green; font-weight: bold; }
+        .wpis { background: white; padding: 10px; margin-top: 10px; border-radius: 5px; border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+
+    <h2>Mój Dziennik</h2>
+    <textarea id="notatka" placeholder="Wpisz coś..."></textarea>
+    <br>
+    <button onclick="zapiszWpis()">Zapisz wpis</button>
+    <div id="status"></div>
+
+    <h3>Zapisane wpisy:</h3>
+    <div id="historia"></div>
+
+    <script>
+        // Funkcja do zapisu
+        function zapiszWpis() {
+            let tekst = document.getElementById('notatka').value;
+            if (!tekst.trim()) {
+                alert('Najpierw coś wpisz!');
+                return;
+            }
+
+            // Pobieramy stare wpisy lub robimy pustą listę
+            let wpisy = JSON.parse(localStorage.getItem('moje_wpisy') || '[]');
+            
+            // Dodajemy nowy wpis na początek z datą
+            let data = new Date().toLocaleString('pl-PL');
+            wpisy.unshift({ tekst: tekst, data: data });
+
+            // Zapisujemy w pamięci przeglądarki
+            localStorage.setItem('moje_wpisy', JSON.stringify(wpisy));
+
+            // Czyścimy pole i odświeżamy widok
+            document.getElementById('notatka').value = '';
+            document.getElementById('status').innerText = 'Zapisano pomyślnie!';
+            setTimeout(() => document.getElementById('status').innerText = '', 2000);
+            
+            wyswietlWpisy();
+        }
+
+        // Funkcja do wyświetlania wpisów
+        function wyswietlWpisy() {
+            let wpisy = JSON.parse(localStorage.getItem('moje_wpisy') || '[]');
+            let historiaDiv = document.getElementById('historia');
+            historiaDiv.innerHTML = '';
+
+            wpisy.forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'wpis';
+                div.innerHTML = `<strong>${item.data}</strong><p>${item.tekst.replace(/\n/g, '<br>')}</p>`;
+                historiaDiv.appendChild(div);
+            });
+        }
+
+        // Załaduj wpisy przy starcie
+        window.onload = wyswietlWpisy;
+    </script>
+
+</body>
+</html>
