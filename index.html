@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADE - Anehski E-Dziennik</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .logo {
+            background-color: #1a56db;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        h2 {
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 20px;
+        }
+        p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .btn-submit {
+            width: 100%;
+            background-color: #1a56db;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            background-color: #1e429f;
+        }
+        .footer-link {
+            margin-top: 20px;
+            display: block;
+            font-size: 13px;
+            color: #1a56db;
+            text-decoration: none;
+        }
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <div class="logo">ADE</div>
+        <h2>Anehski E-Dziennik</h2>
+        <p>Zaloguj się do systemu Synergia</p>
+
+        <!-- Formularz logowania -->
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="login">Login</label>
+                <input type="text" id="login" placeholder="Wpisz login" required>
+            </div>
+
+            <div class="input-group">
+                <label for="haslo">Hasło</label>
+                <input type="password" id="haslo" placeholder="********" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Zaloguj się</button>
+        </form>
+
+        <!-- Przycisk rejestracji admina (ukryje się automatycznie, gdy admin już istnieje w bazie) -->
+        <a href="rejestracja.html" id="przycisk-rejestracji-admina" class="footer-link">Pierwsze uruchomienie? Zarejestruj Admina</a>
+    </div>
+
+    <!-- Firebase SDK (Skrypty do bazy danych) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // TUTAJ WKLEJ SWOJĄ ORYGINALNĄ KONFIGURACJĘ FIREBASE Z PROJEKTU
+        const firebaseConfig = {
+            apiKey: "TUTAJ_WPISZ_SWOJ_API_KEY",
+            authDomain: "TUTAJ_WPISZ_SWOJ_AUTH_DOMAIN",
+            projectId: "TUTAJ_WPISZ_SWOJ_PROJECT_ID",
+            storageBucket: "TUTAJ_WPISZ_SWOJ_STORAGE_BUCKET",
+            messagingSenderId: "TUTAJ_WPISZ_SWOJ_MESSAGING_SENDER_ID",
+            appId: "TUTAJ_WPISZ_SWOJ_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Sprawdzanie bezpośrednio w bazie Firebase, czy admin istnieje (działa tak samo na PC i telefonie)
+        async function sprawdzCzyJestAdmin() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                let adminIstnieje = false;
+
+                querySnapshot.forEach((doc) => {
+                    const dane = doc.data();
+                    if (dane.rola === 'admin' || dane.isAdmin === true) {
+                        adminIstnieje = true;
+                    }
+                });
+
+                const elementRejestracji = document.getElementById('przycisk-rejestracji-admina');
+
+                if (adminIstnieje) {
+                    if (elementRejestracji) elementRejestracji.style.display = 'none';
+                } else {
+                    if (elementRejestracji) elementRejestracji.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Błąd podczas sprawdzania bazy:", error);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            sprawdzCzyJestAdmin();
+        });
+    </script>
+
+</body>
+</html>
